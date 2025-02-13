@@ -12,6 +12,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { ImageDropzone } from "@/components/ui/image-dropzone";
+import { SocialMediaInput } from "@/components/ui/social-media-input";
+import { ColorPalette } from "@/components/ui/color-palette";
 
 export default function HomePage() {
   const [, setLocation] = useLocation();
@@ -25,6 +27,8 @@ export default function HomePage() {
       images: [],
       interestedInGiftCard: false,
       slug: "",
+      socialLinks: [],
+      themeColor: '#3b82f6', // Default blue color
     },
   });
 
@@ -122,6 +126,40 @@ export default function HomePage() {
                           value={field.value?.join("\n")}
                           onChange={(urls) => field.onChange(Array.isArray(urls) ? urls : [urls])}
                           multiple
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="socialLinks"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Social Media Links</FormLabel>
+                      <FormControl>
+                        <SocialMediaInput
+                          value={field.value || []}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="themeColor"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Theme Color</FormLabel>
+                      <FormControl>
+                        <ColorPalette
+                          value={field.value || '#3b82f6'}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />

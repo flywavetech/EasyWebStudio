@@ -13,6 +13,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { apiRequest } from "@/lib/queryClient";
 import { ImageDropzone } from "@/components/ui/image-dropzone";
+import { SocialMediaInput } from "@/components/ui/social-media-input";
+import { ColorPalette } from "@/components/ui/color-palette";
 
 export default function EditPage() {
   const [, params] = useRoute("/edit");
@@ -139,6 +141,40 @@ export default function EditPage() {
                           value={field.value?.join("\n")}
                           onChange={(urls) => field.onChange(Array.isArray(urls) ? urls : [urls])}
                           multiple
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="socialLinks"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Social Media Links</FormLabel>
+                      <FormControl>
+                        <SocialMediaInput
+                          value={field.value || []}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="themeColor"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Theme Color</FormLabel>
+                      <FormControl>
+                        <ColorPalette
+                          value={field.value || '#3b82f6'}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />

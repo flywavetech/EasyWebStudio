@@ -19,6 +19,9 @@ export const sites = pgTable("sites", {
   slug: text("slug").notNull().unique(),
   interestedInGiftCard: boolean("interested_in_gift_card").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
+  // Add new fields for social media and theme
+  socialLinks: text("social_links").array(),
+  themeColor: text("theme_color").default('#3b82f6'), // Default blue color
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -36,6 +39,8 @@ export const insertSiteSchema = createInsertSchema(sites)
     images: z.array(z.string().url("Please provide valid image URLs")).optional().default([]),
     interestedInGiftCard: z.boolean(),
     slug: z.string().min(1, "Slug is required"),
+    socialLinks: z.array(z.string().url("Please provide valid social media URLs")).optional().default([]),
+    themeColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Invalid color hex code").optional(),
   });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

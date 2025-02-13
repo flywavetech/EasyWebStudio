@@ -58,7 +58,12 @@ export function registerRoutes(app: Express): Server {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${site.businessName}</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <style>
+          :root {
+            --theme-color: ${site.themeColor || '#3b82f6'};
+          }
+
           body {
             font-family: system-ui, -apple-system, sans-serif;
             margin: 0;
@@ -66,7 +71,8 @@ export function registerRoutes(app: Express): Server {
             line-height: 1.6;
           }
           .hero {
-            background-color: #f8f9fa;
+            background-color: var(--theme-color);
+            color: white;
             padding: 4rem 2rem;
             text-align: center;
           }
@@ -75,6 +81,9 @@ export function registerRoutes(app: Express): Server {
             height: 120px;
             object-fit: contain;
             margin-bottom: 2rem;
+            border-radius: 50%;
+            background: white;
+            padding: 1rem;
           }
           .container {
             max-width: 1200px;
@@ -100,6 +109,20 @@ export function registerRoutes(app: Express): Server {
             object-fit: cover;
             border-radius: 8px;
           }
+          .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+          }
+          .social-links a {
+            color: white;
+            font-size: 1.5rem;
+            transition: opacity 0.2s;
+          }
+          .social-links a:hover {
+            opacity: 0.8;
+          }
           @media (max-width: 768px) {
             .hero {
               padding: 2rem 1rem;
@@ -117,6 +140,18 @@ export function registerRoutes(app: Express): Server {
           ` : ''}
           <h1>${site.businessName}</h1>
           <p>${site.description}</p>
+          ${site.socialLinks && site.socialLinks.length > 0 ? `
+            <div class="social-links">
+              ${site.socialLinks.map(link => {
+                const icon = link.includes('facebook') ? 'fab fa-facebook' :
+                           link.includes('twitter') ? 'fab fa-twitter' :
+                           link.includes('instagram') ? 'fab fa-instagram' :
+                           link.includes('linkedin') ? 'fab fa-linkedin' :
+                           'fas fa-link';
+                return `<a href="${link}" target="_blank" rel="noopener noreferrer"><i class="${icon}"></i></a>`;
+              }).join('')}
+            </div>
+          ` : ''}
         </div>
 
         <div class="container">
