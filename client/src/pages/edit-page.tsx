@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { apiRequest } from "@/lib/queryClient";
+import { ImageDropzone } from "@/components/ui/image-dropzone";
 
 export default function EditPage() {
   const [, params] = useRoute("/edit");
@@ -115,9 +116,12 @@ export default function EditPage() {
                   name="logoUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Logo URL</FormLabel>
+                      <FormLabel>Logo</FormLabel>
                       <FormControl>
-                        <Input {...field} type="url" />
+                        <ImageDropzone 
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -129,19 +133,12 @@ export default function EditPage() {
                   name="images"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Image URLs (one per line)</FormLabel>
+                      <FormLabel>Gallery Images</FormLabel>
                       <FormControl>
-                        <Textarea
-                          {...field}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value
-                                .split("\n")
-                                .map((url) => url.trim())
-                                .filter(Boolean)
-                            )
-                          }
-                          value={field.value?.join("\n") || ""}
+                        <ImageDropzone
+                          value={field.value?.join("\n")}
+                          onChange={(urls) => field.onChange(Array.isArray(urls) ? urls : [urls])}
+                          multiple
                         />
                       </FormControl>
                       <FormMessage />

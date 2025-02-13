@@ -11,6 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { ImageDropzone } from "@/components/ui/image-dropzone";
 
 export default function HomePage() {
   const [, setLocation] = useLocation();
@@ -98,9 +99,12 @@ export default function HomePage() {
                   name="logoUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Logo URL</FormLabel>
+                      <FormLabel>Logo</FormLabel>
                       <FormControl>
-                        <Input {...field} type="url" />
+                        <ImageDropzone 
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -112,19 +116,12 @@ export default function HomePage() {
                   name="images"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Image URLs (one per line)</FormLabel>
+                      <FormLabel>Gallery Images</FormLabel>
                       <FormControl>
-                        <Textarea
-                          {...field}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value
-                                .split("\n")
-                                .map((url) => url.trim())
-                                .filter(Boolean)
-                            )
-                          }
-                          value={field.value?.join("\n") || ""}
+                        <ImageDropzone
+                          value={field.value?.join("\n")}
+                          onChange={(urls) => field.onChange(Array.isArray(urls) ? urls : [urls])}
+                          multiple
                         />
                       </FormControl>
                       <FormMessage />

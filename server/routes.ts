@@ -4,9 +4,39 @@ import { setupAuth } from "./auth";
 import { storage } from "./storage";
 import { insertSiteSchema } from "@shared/schema";
 import { z } from "zod";
+import multer from "multer";
+import { uploadImage, uploadImages } from "./upload";
+
+// Configure multer for memory storage
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  }
+});
 
 export function registerRoutes(app: Express): Server {
   setupAuth(app);
+
+  // File upload endpoint
+  app.post("/api/upload", upload.array("file"), async (req, res) => {
+    try {
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(400).json({ message: "No files uploaded" });
+      }
+
+      if (req.files.length === 1) {
+        const url = await uploadImage(req.files[0]);
+        res.json({ url });
+      } else {
+        const urls = await uploadImages(req.files);
+        res.json({ urls });
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      res.status(500).json({ message: "Upload failed" });
+    }
+  });
 
   // Get all sites (admin only)
   app.get("/api/sites", async (req, res) => {
