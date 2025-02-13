@@ -4,12 +4,25 @@ import { Site } from "@shared/schema";
 import { Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { useEffect } from "react";
 
 export default function SitePage() {
   const [, params] = useRoute("/sites/:slug");
   const { data: site, isLoading } = useQuery<Site>({
     queryKey: [`/api/sites/${params?.slug}`],
   });
+
+  // Add Font Awesome CSS
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css';
+    document.head.appendChild(link);
+
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
 
   if (isLoading) {
     return (
@@ -50,23 +63,24 @@ export default function SitePage() {
           {/* Social Media Links */}
           {site.socialLinks && site.socialLinks.length > 0 && (
             <div className="flex justify-center gap-4 mt-6">
-              {site.socialLinks.map((link, index) => (
-                <a
-                  key={index}
-                  href={link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white hover:opacity-80 transition-opacity"
-                >
-                  <i className={
-                    link.includes('facebook') ? 'fab fa-facebook text-2xl' :
-                    link.includes('twitter') ? 'fab fa-twitter text-2xl' :
-                    link.includes('instagram') ? 'fab fa-instagram text-2xl' :
-                    link.includes('linkedin') ? 'fab fa-linkedin text-2xl' :
-                    'fas fa-link text-2xl'
-                  } />
-                </a>
-              ))}
+              {site.socialLinks.map((link, index) => {
+                const icon = link.includes('facebook.com') ? 'fab fa-facebook' :
+                           link.includes('twitter.com') ? 'fab fa-twitter' :
+                           link.includes('instagram.com') ? 'fab fa-instagram' :
+                           link.includes('linkedin.com') ? 'fab fa-linkedin' :
+                           'fas fa-link';
+                return (
+                  <a
+                    key={index}
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white hover:opacity-80 transition-opacity"
+                  >
+                    <i className={`${icon} text-2xl`} />
+                  </a>
+                );
+              })}
             </div>
           )}
         </div>
