@@ -45,7 +45,101 @@ export function registerRoutes(app: Express): Server {
     res.json(sites);
   });
 
-  // Get site by slug (public)
+  // Get site by slug (public) - now returns HTML
+  app.get("/sites/:slug", async (req, res) => {
+    const site = await storage.getSiteBySlug(req.params.slug);
+    if (!site) return res.sendStatus(404);
+
+    // Return static HTML page
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${site.businessName}</title>
+        <style>
+          body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+          }
+          .hero {
+            background-color: #f8f9fa;
+            padding: 4rem 2rem;
+            text-align: center;
+          }
+          .logo {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 2rem;
+          }
+          .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+          }
+          .contact-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+          }
+          .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+          }
+          .gallery img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+          }
+          @media (max-width: 768px) {
+            .hero {
+              padding: 2rem 1rem;
+            }
+            .container {
+              padding: 1rem;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="hero">
+          <img src="${site.logoUrl}" alt="${site.businessName} logo" class="logo">
+          <h1>${site.businessName}</h1>
+          <p>${site.description}</p>
+        </div>
+
+        <div class="container">
+          <div class="contact-card">
+            <h2>Contact Us</h2>
+            <p>${site.contactInfo}</p>
+          </div>
+
+          ${site.images.length > 0 ? `
+            <h2>Gallery</h2>
+            <div class="gallery">
+              ${site.images.map(img => `
+                <img src="${img}" alt="Gallery image">
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      </body>
+      </html>
+    `;
+
+    res.send(html);
+  });
+
+  // API version of get site by slug (for admin/edit pages)
   app.get("/api/sites/:slug", async (req, res) => {
     const site = await storage.getSiteBySlug(req.params.slug);
     if (!site) return res.sendStatus(404);

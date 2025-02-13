@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -20,7 +21,7 @@ export async function uploadImage(file: Express.Multer.File): Promise<string> {
     );
 
     // Convert buffer to stream and pipe to cloudinary
-    const bufferStream = require('stream').Readable.from(file.buffer);
+    const bufferStream = Readable.from(file.buffer);
     bufferStream.pipe(uploadStream);
   });
 }
