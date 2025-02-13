@@ -9,11 +9,13 @@ import HomePage from "@/pages/home-page";
 import AdminPage from "@/pages/admin-page";
 import SitePage from "@/pages/site-page";
 import EditPage from "@/pages/edit-page";
+import AuthPage from "@/pages/auth-page";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
+      <Route path="/auth" component={AuthPage} />
       <ProtectedRoute path="/admin" component={AdminPage} />
       <Route path="/sites/:slug" component={SitePage} />
       <Route path="/edit" component={EditPage} />
