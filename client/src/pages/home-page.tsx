@@ -21,7 +21,7 @@ export default function HomePage() {
       businessName: "",
       contactInfo: "",
       description: "",
-      logoUrl: "",
+      logoUrl: undefined,
       images: [],
       interestedInGiftCard: false,
       slug: "",

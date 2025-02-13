@@ -112,7 +112,9 @@ export function registerRoutes(app: Express): Server {
       </head>
       <body>
         <div class="hero">
-          <img src="${site.logoUrl}" alt="${site.businessName} logo" class="logo">
+          ${site.logoUrl ? `
+            <img src="${site.logoUrl}" alt="${site.businessName} logo" class="logo">
+          ` : ''}
           <h1>${site.businessName}</h1>
           <p>${site.description}</p>
         </div>
@@ -123,7 +125,7 @@ export function registerRoutes(app: Express): Server {
             <p>${site.contactInfo}</p>
           </div>
 
-          ${site.images.length > 0 ? `
+          ${site.images?.length > 0 ? `
             <h2>Gallery</h2>
             <div class="gallery">
               ${site.images.map(img => `
