@@ -1,8 +1,8 @@
-import { User, InsertUser, Site, InsertSite } from "@shared/schema";
+import { users, sites, type User, type InsertUser, type Site, type InsertSite } from "@shared/schema";
+import { db, sessionStore } from "./db";
 import session from "express-session";
+import { eq } from "drizzle-orm";
 import { randomBytes } from "crypto";
-import createMemoryStore from "memorystore";
-const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -16,82 +16,68 @@ export interface IStorage {
   createSite(site: InsertSite): Promise<Site>;
   updateSite(id: number, site: Partial<InsertSite>): Promise<Site>;
 
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private sites: Map<number, Site>;
-  private currentUserId: number;
-  private currentSiteId: number;
-  sessionStore: session.SessionStore;
-
-  constructor() {
-    this.users = new Map();
-    this.sites = new Map();
-    this.currentUserId = 1;
-    this.currentSiteId = 1;
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000,
-    });
-  }
+export class DatabaseStorage implements IStorage {
+  sessionStore = sessionStore;
 
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   async getSites(): Promise<Site[]> {
-    return Array.from(this.sites.values());
+    return await db.select().from(sites);
   }
 
   async getSite(id: number): Promise<Site | undefined> {
-    return this.sites.get(id);
+    const [site] = await db.select().from(sites).where(eq(sites.id, id));
+    return site;
   }
 
   async getSiteBySlug(slug: string): Promise<Site | undefined> {
-    return Array.from(this.sites.values()).find((site) => site.slug === slug);
+    const [site] = await db.select().from(sites).where(eq(sites.slug, slug));
+    return site;
   }
 
   async getSiteByEditToken(token: string): Promise<Site | undefined> {
-    return Array.from(this.sites.values()).find(
-      (site) => site.editToken === token,
-    );
+    const [site] = await db.select().from(sites).where(eq(sites.editToken, token));
+    return site;
   }
 
   async createSite(insertSite: InsertSite): Promise<Site> {
-    const id = this.currentSiteId++;
     const editToken = randomBytes(32).toString("hex");
-    const site: Site = {
-      ...insertSite,
-      id,
-      editToken,
-      createdAt: new Date(),
-    };
-    this.sites.set(id, site);
+    const [site] = await db
+      .insert(sites)
+      .values({
+        ...insertSite,
+        editToken,
+        createdAt: new Date(),
+      })
+      .returning();
     return site;
   }
 
   async updateSite(id: number, updates: Partial<InsertSite>): Promise<Site> {
-    const site = await this.getSite(id);
+    const [site] = await db
+      .update(sites)
+      .set(updates)
+      .where(eq(sites.id, id))
+      .returning();
     if (!site) throw new Error("Site not found");
-
-    const updatedSite = { ...site, ...updates };
-    this.sites.set(id, updatedSite);
-    return updatedSite;
+    return site;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
