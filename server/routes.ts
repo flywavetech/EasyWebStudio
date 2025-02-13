@@ -125,7 +125,7 @@ export function registerRoutes(app: Express): Server {
             <p>${site.contactInfo}</p>
           </div>
 
-          ${site.images?.length > 0 ? `
+          ${site.images && site.images.length > 0 ? `
             <h2>Gallery</h2>
             <div class="gallery">
               ${site.images.map(img => `
