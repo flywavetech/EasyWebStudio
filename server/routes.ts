@@ -6,6 +6,8 @@ import { insertSiteSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import { uploadImage, uploadImages } from "./upload";
+import archiver from 'archiver';
+
 
 // Configure multer for memory storage
 const upload = multer({ 
@@ -213,6 +215,25 @@ export function registerRoutes(app: Express): Server {
       throw e;
     }
   });
+
+  // Download site as ZIP
+  app.get("/api/download", async (req, res) => {
+    const archive = archiver('zip', {
+      zlib: { level: 9 }
+    });
+
+    res.attachment('mysite.zip');
+    archive.pipe(res);
+
+    // Add client files
+    archive.directory('client/src', 'src');
+    archive.directory('server', 'server');
+    archive.directory('shared', 'shared');
+    archive.file('package.json', { name: 'package.json' });
+
+    await archive.finalize();
+  });
+
 
   const httpServer = createServer(app);
   return httpServer;
